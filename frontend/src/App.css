@@ -1,0 +1,56 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+/* App background and card visuals */
+.app-bg {
+  background-image: radial-gradient(circle at 10% 20%, rgba(11,95,255,0.04), transparent 8%),
+                    radial-gradient(circle at 90% 80%, rgba(53,163,247,0.03), transparent 12%);
+}
+
+/* Slightly larger content area spacing */
+.MuiContainer-root {
+  padding-top: 32px !important;
+  padding-bottom: 32px !important;
+}
+
+/* Make list items a bit smoother */
+.MuiListItem-root {
+  border-radius: 8px;
+}
+
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
