@@ -1,0 +1,183 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Driver Form</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <style>
+      .form-container {
+        max-width: 500px;
+        margin: 40px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .btn-cancel {
+        background-color: #6c757d;
+        margin-left: 10px;
+      }
+      .btn-cancel:hover {
+        background-color: #545b62;
+      }
+      .message {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 4px;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="form-container">
+      <h2 th:if="${driver == null}">Add New Driver</h2>
+      <h2 th:if="${driver != null}">Edit Driver</h2>
+
+      <div id="message"></div>
+
+      <form id="driverForm" method="POST">
+        <div class="form-group">
+          <label for="name">Name:</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            th:value="${driver?.name}"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone:</label>
+          <input
+            type="text"
+            id="phone"
+            name="phone"
+            th:value="${driver?.phone}"
+          />
+        </div>
+        <div class="form-group">
+          <button
+            type="submit"
+            th:text="${driver == null} ? 'Add Driver' : 'Update Driver'"
+          >
+            Add Driver
+          </button>
+          <a href="/drivers"
+            ><button type="button" class="btn-cancel">Cancel</button></a
+          >
+        </div>
+      </form>
+    </div>
+
+    <script>
+      // Ensure form is properly initialized
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("driverForm");
+
+        if (!form) {
+          console.error("Form not found!");
+          return;
+        }
+
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const name = document.getElementById("name").value.trim();
+          const phone = document.getElementById("phone").value.trim();
+          const messageDiv = document.getElementById("message");
+
+          if (!name) {
+            messageDiv.className = "message error";
+            messageDiv.textContent = "Name is required!";
+            return;
+          }
+
+          // Get driver ID if editing
+          let driverId = null;
+          const driverIdText = "[[${driver?.id}]]";
+          if (driverIdText && driverIdText !== "null" && driverIdText !== "") {
+            driverId = driverIdText;
+          }
+
+          const data = {
+            name: name,
+            phone: phone,
+          };
+
+          try {
+            const url = driverId ? `/api/drivers/${driverId}` : "/api/drivers";
+            const method = driverId ? "PUT" : "POST";
+
+            console.log("Sending " + method + " request to " + url);
+            console.log("Data:", data);
+
+            const response = await fetch(url, {
+              method: method,
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
+
+            console.log("Response status:", response.status);
+
+            if (response.ok) {
+              messageDiv.className = "message success";
+              messageDiv.textContent = driverId
+                ? "Driver updated successfully!"
+                : "Driver added successfully!";
+              setTimeout(() => {
+                window.location.href = "/drivers";
+              }, 1500);
+            } else {
+              const errorText = await response.text();
+              messageDiv.className = "message error";
+              messageDiv.textContent =
+                "Error: " + response.statusText + " - " + errorText;
+              console.error("Error response:", errorText);
+            }
+          } catch (error) {
+            messageDiv.className = "message error";
+            messageDiv.textContent = "Error: " + error.message;
+            console.error("Fetch error:", error);
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,79 @@
+# ============================================
+# Spring Boot Configuration for DVR Project
+# ============================================
+
+spring:
+  # Application name
+  application:
+    name: DVR Project
+
+  # ============= MySQL Database Configuration =============
+  # This replaces the MONGO_URI from Node.js
+  datasource:
+    # MySQL connection URL
+    # Format: jdbc:mysql://host:port/database
+    url: jdbc:mysql://localhost:3309/dvr_project
+    username: root
+    password: Dasav@7173
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  # ============= JPA/Hibernate Configuration =============
+  # JPA is the Java equivalent of Mongoose
+  jpa:
+    # Show SQL queries in console (helpful for debugging)
+    show-sql: true
+
+    # Hibernate dialect for MySQL 8
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        # Format SQL for readability
+        format_sql: true
+
+    # Hibernate DDL strategy (Data Definition Language)
+    # update: automatically create/update tables based on entities
+    # create: drop and recreate tables on startup (use for dev only)
+    # validate: validate schema on startup (use for production)
+    hibernate:
+      ddl-auto: update
+
+  # ============= Thymeleaf Configuration =============
+  # Thymeleaf renders HTML templates (replaces React)
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false
+
+  # ============= Static Resources Configuration =============
+  # CSS, images, etc. served from static folder
+  web:
+    resources:
+      static-locations: classpath:/static/
+
+# ============= Server Configuration =============
+server:
+  # Port to run the application on
+  port: 8080
+
+  # Servlet context path
+  servlet:
+    context-path: /
+
+# ============= Logging Configuration =============
+logging:
+  level:
+    root: INFO
+    com.dvr: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+# ============= Jackson Configuration =============
+# Jackson handles JSON serialization/deserialization
+jackson:
+  serialization:
+    write-dates-as-timestamps: false
+  default-property-inclusion: non_null

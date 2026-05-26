@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DVR Project - Dashboard</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <!-- Navigation Header -->
+    <header class="navbar">
+      <div class="container">
+        <div class="navbar-brand">
+          <h1>🚗 DVR Project</h1>
+          <p>Vehicle & Driver Management System</p>
+        </div>
+        <nav class="navbar-menu">
+          <ul>
+            <li><a href="/" class="nav-link active">Dashboard</a></li>
+            <li><a href="/drivers" class="nav-link">Drivers</a></li>
+            <li><a href="/vehicles" class="nav-link">Vehicles</a></li>
+            <li><a href="/trips" class="nav-link">Trips</a></li>
+          </ul>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="container">
+        <!-- Dashboard Title -->
+        <section class="dashboard-header">
+          <h2>Owner Dashboard</h2>
+          <p>Monitor your fleet and operations in real-time</p>
+        </section>
+
+        <!-- Dashboard Stats Grid -->
+        <div class="dashboard-grid">
+          <!-- Total Drivers Card -->
+          <div class="stat-card">
+            <div class="stat-icon">👨‍✈️</div>
+            <div class="stat-content">
+              <h3>Total Drivers</h3>
+              <p class="stat-value" th:text="${totalDrivers}">0</p>
+            </div>
+          </div>
+
+          <!-- Total Vehicles Card -->
+          <div class="stat-card">
+            <div class="stat-icon">🚗</div>
+            <div class="stat-content">
+              <h3>Total Vehicles</h3>
+              <p class="stat-value" th:text="${totalVehicles}">0</p>
+            </div>
+          </div>
+
+          <!-- Active Trips Card -->
+          <div class="stat-card">
+            <div class="stat-icon">🛣️</div>
+            <div class="stat-content">
+              <h3>Active Trips</h3>
+              <p class="stat-value" th:text="${activeTrips}">0</p>
+            </div>
+          </div>
+
+          <!-- Total Profit Card -->
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-content">
+              <h3>Total Profit</h3>
+              <p class="stat-value" th:text="${'$' + totalProfit}">$0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Activity Section -->
+        <section class="recent-activity">
+          <div class="section-header">
+            <h2>Recent Activity</h2>
+            <a href="/trips" class="view-all-btn">View All</a>
+          </div>
+
+          <!-- Activity Table -->
+          <div class="table-responsive">
+            <table class="activity-table">
+              <thead>
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Driver</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="trip : ${recentTrips}">
+                  <td th:text="${trip.vehicle?.number ?: 'N/A'}">
+                    MH-01-AB-1234
+                  </td>
+                  <td th:text="${trip.driver?.name ?: 'N/A'}">John Doe</td>
+                  <td th:text="${trip.from ?: 'N/A'}">Mumbai</td>
+                  <td th:text="${trip.to ?: 'N/A'}">Delhi</td>
+                  <td>
+                    <span
+                      class="status-badge"
+                      th:classappend="${'status-' + trip.status.toString().toLowerCase()}"
+                      th:text="${trip.status}"
+                      >COMPLETED</span
+                    >
+                  </td>
+                  <td th:text="${#temporals.format(trip.date, 'dd-MMM-yyyy')}">
+                    01-Jan-2025
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Quick Actions Section -->
+        <section class="quick-actions">
+          <h2>Quick Actions</h2>
+          <div class="action-buttons">
+            <a href="/drivers/new" class="btn btn-primary">➕ Add Driver</a>
+            <a href="/vehicles/new" class="btn btn-primary">➕ Add Vehicle</a>
+            <a href="/trips/new" class="btn btn-primary">➕ Create Trip</a>
+            <a href="/reports" class="btn btn-secondary">📊 Generate Report</a>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <p>&copy; 2025 DVR Project. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <script src="/js/dashboard.js"></script>
+  </body>
+</html>

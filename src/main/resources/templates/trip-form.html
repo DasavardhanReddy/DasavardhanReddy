@@ -1,0 +1,256 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trip Form</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <style>
+      .form-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input,
+      select,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      textarea {
+        resize: vertical;
+        min-height: 80px;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .btn-cancel {
+        background-color: #6c757d;
+        margin-left: 10px;
+      }
+      .btn-cancel:hover {
+        background-color: #545b62;
+      }
+      .message {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 4px;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="form-container">
+      <h2>Create New Trip</h2>
+
+      <div id="message"></div>
+
+      <form id="tripForm" method="POST">
+        <div class="form-group">
+          <label for="vehicleId">Vehicle:</label>
+          <select id="vehicleId" name="vehicleId" required>
+            <option value="">-- Select Vehicle --</option>
+            <option
+              th:each="vehicle : ${vehicles}"
+              th:value="${vehicle.id}"
+              th:text="${vehicle.number + ' - ' + vehicle.model}"
+              th:selected="${trip?.vehicle?.id == vehicle.id}"
+            >
+              Vehicle
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="driverId">Driver:</label>
+          <select id="driverId" name="driverId">
+            <option value="">-- Select Driver --</option>
+            <option
+              th:each="driver : ${drivers}"
+              th:value="${driver.id}"
+              th:text="${driver.name}"
+              th:selected="${trip?.driver?.id == driver.id}"
+            >
+              Driver
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="from">From Location:</label>
+          <input
+            type="text"
+            id="from"
+            name="from"
+            placeholder="Starting location"
+            th:value="${trip?.from}"
+          />
+        </div>
+        <div class="form-group">
+          <label for="to">To Location:</label>
+          <input
+            type="text"
+            id="to"
+            name="to"
+            placeholder="Destination location"
+            th:value="${trip?.to}"
+          />
+        </div>
+        <div class="form-group">
+          <label for="cargo">Cargo Description:</label>
+          <textarea
+            id="cargo"
+            name="cargo"
+            placeholder="What is being transported?"
+            th:text="${trip?.cargo}"
+          ></textarea>
+        </div>
+        <div class="form-group">
+          <label for="profit">Profit (₹):</label>
+          <input
+            type="number"
+            id="profit"
+            name="profit"
+            step="0.01"
+            min="0"
+            placeholder="0.00"
+            th:value="${trip?.profit}"
+          />
+        </div>
+        <div class="form-group">
+          <label for="date">Trip Date:</label>
+          <input type="datetime-local" id="date" name="date" />
+        </div>
+        <div class="form-group">
+          <label for="status">Status:</label>
+          <select id="status" name="status">
+            <option
+              value="PLANNED"
+              th:selected="${trip?.status?.toString() == 'PLANNED'}"
+            >
+              Planned
+            </option>
+            <option
+              value="ONGOING"
+              th:selected="${trip?.status?.toString() == 'ONGOING'}"
+            >
+              Ongoing
+            </option>
+            <option
+              value="COMPLETED"
+              th:selected="${trip?.status?.toString() == 'COMPLETED'}"
+            >
+              Completed
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button type="submit">Create Trip</button>
+          <a href="/trips"
+            ><button type="button" class="btn-cancel">Cancel</button></a
+          >
+        </div>
+      </form>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("tripForm");
+        const messageDiv = document.getElementById("message");
+
+        if (!form) {
+          return;
+        }
+
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const vehicleId = document.getElementById("vehicleId").value;
+          const driverId = document.getElementById("driverId").value;
+          const from = document.getElementById("from").value.trim();
+          const to = document.getElementById("to").value.trim();
+          const cargo = document.getElementById("cargo").value.trim();
+          const profit = document.getElementById("profit").value;
+          const date = document.getElementById("date").value;
+          const status = document.getElementById("status").value;
+
+          if (!vehicleId) {
+            messageDiv.className = "message error";
+            messageDiv.textContent = "Vehicle is required!";
+            return;
+          }
+
+          // Convert datetime-local to ISO format
+          const tripDate = date
+            ? new Date(date).toISOString()
+            : new Date().toISOString();
+
+          const data = {
+            vehicle: { id: parseInt(vehicleId) },
+            driver: driverId ? { id: parseInt(driverId) } : null,
+            from: from,
+            to: to,
+            cargo: cargo,
+            profit: profit ? parseFloat(profit) : null,
+            date: tripDate,
+            status: status,
+          };
+
+          try {
+            const response = await fetch("/api/trips", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+              messageDiv.className = "message success";
+              messageDiv.textContent = "Trip created successfully!";
+              setTimeout(() => {
+                window.location.href = "/trips";
+              }, 1500);
+            } else {
+              const errText = await response.text();
+              messageDiv.className = "message error";
+              messageDiv.textContent =
+                "Error: " + response.statusText + " - " + errText;
+            }
+          } catch (error) {
+            messageDiv.className = "message error";
+            messageDiv.textContent = "Error: " + error.message;
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,242 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vehicle Form</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <style>
+      .form-container {
+        max-width: 500px;
+        margin: 40px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .btn-cancel {
+        background-color: #6c757d;
+        margin-left: 10px;
+      }
+      .btn-cancel:hover {
+        background-color: #545b62;
+      }
+      .message {
+        margin: 10px 0;
+        padding: 10px;
+        border-radius: 4px;
+      }
+      .error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      .success {
+        background-color: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="form-container">
+      <h2 th:if="${vehicle == null}">Add New Vehicle</h2>
+      <h2 th:if="${vehicle != null}">Edit Vehicle</h2>
+
+      <div id="message"></div>
+
+      <form
+        id="vehicleForm"
+        method="POST"
+        th:attr="data-vehicle-id=${vehicle?.id}"
+      >
+        <div class="form-group">
+          <label for="number">Vehicle Number:</label>
+          <input
+            type="text"
+            id="number"
+            name="number"
+            th:value="${vehicle?.number}"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="model">Model:</label>
+          <input
+            type="text"
+            id="model"
+            name="model"
+            th:value="${vehicle?.model}"
+          />
+        </div>
+        <div class="form-group">
+          <label for="currentLocation">Current Location:</label>
+          <input
+            type="text"
+            id="currentLocation"
+            name="currentLocation"
+            th:value="${vehicle?.currentLocation}"
+          />
+        </div>
+        <div class="form-group">
+          <label for="destination">Destination:</label>
+          <input
+            type="text"
+            id="destination"
+            name="destination"
+            th:value="${vehicle?.destination}"
+          />
+        </div>
+        <div class="form-group">
+          <label for="status">Status:</label>
+          <select id="status" name="status">
+            <option
+              value="IDLE"
+              th:selected="${vehicle?.status?.toString() == 'IDLE'}"
+            >
+              Idle
+            </option>
+            <option
+              value="LOADING"
+              th:selected="${vehicle?.status?.toString() == 'LOADING'}"
+            >
+              Loading
+            </option>
+            <option
+              value="IN_TRANSIT"
+              th:selected="${vehicle?.status?.toString() == 'IN_TRANSIT'}"
+            >
+              In Transit
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="driverId">Assign Driver:</label>
+          <select id="driverId" name="driverId">
+            <option value="">-- None --</option>
+            <option
+              th:each="driver : ${drivers}"
+              th:value="${driver.id}"
+              th:text="${driver.name}"
+              th:selected="${vehicle?.driver?.id == driver.id}"
+            >
+              Driver
+            </option>
+          </select>
+        </div>
+        <div class="form-group">
+          <button
+            type="submit"
+            th:text="${vehicle == null} ? 'Add Vehicle' : 'Update Vehicle'"
+          >
+            Add Vehicle
+          </button>
+          <a href="/vehicles"
+            ><button type="button" class="btn-cancel">Cancel</button></a
+          >
+        </div>
+      </form>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const form = document.getElementById("vehicleForm");
+        const messageDiv = document.getElementById("message");
+
+        if (!form) {
+          return;
+        }
+
+        form.addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const number = document.getElementById("number").value.trim();
+          const model = document.getElementById("model").value.trim();
+          const currentLocation = document
+            .getElementById("currentLocation")
+            .value.trim();
+          const destination = document
+            .getElementById("destination")
+            .value.trim();
+          const status = document.getElementById("status").value;
+          const driverId = document.getElementById("driverId").value;
+          const vehicleId = form.dataset.vehicleId || null;
+
+          if (!number) {
+            messageDiv.className = "message error";
+            messageDiv.textContent = "Vehicle Number is required!";
+            return;
+          }
+
+          const data = {
+            number: number,
+            model: model,
+            currentLocation: currentLocation,
+            destination: destination,
+            status: status,
+            driver: driverId ? { id: parseInt(driverId) } : null,
+          };
+
+          try {
+            const url = vehicleId
+              ? `/api/vehicles/${vehicleId}`
+              : "/api/vehicles";
+            const method = vehicleId ? "PUT" : "POST";
+
+            const response = await fetch(url, {
+              method: method,
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+              messageDiv.className = "message success";
+              messageDiv.textContent = vehicleId
+                ? "Vehicle updated successfully!"
+                : "Vehicle added successfully!";
+              setTimeout(() => {
+                window.location.href = "/vehicles";
+              }, 1500);
+            } else {
+              const errText = await response.text();
+              messageDiv.className = "message error";
+              messageDiv.textContent =
+                "Error: " + response.statusText + " - " + errText;
+            }
+          } catch (error) {
+            messageDiv.className = "message error";
+            messageDiv.textContent = "Error: " + error.message;
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

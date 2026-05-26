@@ -1,0 +1,86 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Driver Details</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <style>
+      .detail-container {
+        max-width: 600px;
+        margin: 40px auto;
+        padding: 20px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+      }
+      .detail-row {
+        margin-bottom: 15px;
+        display: flex;
+      }
+      .detail-label {
+        font-weight: bold;
+        width: 150px;
+      }
+      .detail-value {
+        flex: 1;
+      }
+      .btn-group {
+        margin-top: 20px;
+      }
+      a {
+        margin-right: 10px;
+      }
+      button {
+        padding: 10px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .btn-danger {
+        background-color: #dc3545;
+      }
+      .btn-danger:hover {
+        background-color: #c82333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="detail-container">
+      <h2>Driver Details</h2>
+
+      <div class="detail-row" th:if="${driver}">
+        <span class="detail-label">ID:</span>
+        <span class="detail-value" th:text="${driver.id}">-</span>
+      </div>
+      <div class="detail-row" th:if="${driver}">
+        <span class="detail-label">Name:</span>
+        <span class="detail-value" th:text="${driver.name}">-</span>
+      </div>
+      <div class="detail-row" th:if="${driver}">
+        <span class="detail-label">Phone:</span>
+        <span class="detail-value" th:text="${driver.phone}">-</span>
+      </div>
+      <div class="detail-row" th:if="${driver}">
+        <span class="detail-label">Created At:</span>
+        <span class="detail-value" th:text="${driver.createdAt}">-</span>
+      </div>
+
+      <div class="btn-group" th:if="${driver}">
+        <a th:href="'/drivers/' + ${driver.id} + '/edit'"
+          ><button>Edit</button></a
+        >
+        <a href="/drivers"><button>Back to List</button></a>
+      </div>
+
+      <div th:if="!${driver}">
+        <p>Driver not found</p>
+        <a href="/drivers"><button>Back to List</button></a>
+      </div>
+    </div>
+  </body>
+</html>
